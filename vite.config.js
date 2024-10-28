@@ -7,12 +7,12 @@ export default defineConfig({
     build: {
         lib: {
             entry: "./src/index.tsx",
-            name: "test-pack-five",
+            name: "authentication-ui",
             fileName: (format) => `index.${format}.js`,
             formats: ["cjs", "es"],
         },
         rollupOptions: {
-            external: ["react", "react-dom",],
+            external: ["react", "react-dom"],
             output: {
                 globals: {
                     react: "React",
