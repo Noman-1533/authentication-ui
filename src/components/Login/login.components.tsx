@@ -240,10 +240,11 @@ const LoginForm = ({
                     return true;
                   },
                 })}
-                className={`w-full px-4 py-2 border rounded-md focus:outline-none transition-all duration-200 ${errors[item.fieldName]
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none transition-all duration-200 ${
+                  errors[item.fieldName]
                     ? "border-red-500 focus:ring-red-500"
                     : "border-gray-300 focus:ring-blue-400"
-                  }`}
+                }`}
               />
               {errors[item.fieldName]?.message && (
                 <div className="text-xs text-red-600 mt-1">
@@ -255,11 +256,17 @@ const LoginForm = ({
           <button
             type="submit"
             disabled={!isValid || isSubmitting}
+            // className={`w-full py-2 mt-4 font-semibold ${buttonSize} text-white rounded-md transition-all duration-200 ${
+            //   isValid && !isSubmitting
+            //     ? `${buttonColor} hover:bg-green-600 focus:ring-2 focus:ring-green-400`
+            //     : "bg-gray-400 cursor-not-allowed"
+            // }`}
             className={`font-semibold ${buttonSize} text-white  rounded-md 
-                        ${isValid && !isSubmitting
-                ? "bg-gray-600 cursor-not-allowed"
-                : `${buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
-              }`}
+            ${
+              isValid && !isSubmitting
+                ? `${buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
+                : "bg-gray-600 cursor-not-allowed"
+            }`}
             style={{
               backgroundColor: buttonColor,
             }}
