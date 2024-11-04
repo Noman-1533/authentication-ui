@@ -207,6 +207,7 @@ const LoginForm = ({
                 </label>
               )}
               <input
+                min=""
                 type={item.fieldType}
                 placeholder={item.placeholder || `Enter your ${item.fieldLabel?.toLowerCase()}`}
                 {...register(item.fieldName, {
