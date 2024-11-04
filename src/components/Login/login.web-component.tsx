@@ -61,5 +61,5 @@ class LoginWebComponent extends HTMLElement {
     )
   }
 }
-customElements.define("custom-login", LoginWebComponent);
+customElements.define("custom-form", LoginWebComponent);
 export { LoginWebComponent };
