@@ -1,10 +1,13 @@
-// import  { useState, ChangeEvent, FormEvent } from "react";
+
+// import { useForm } from "react-hook-form";
+// import { useState } from "react";
 
 // export interface FormField {
 //   fieldLabel: string;
 //   fieldType: string;
-//   fieldName: string; // Unique identifier for the field state
-//   placeholder?: string; // Optional placeholder customization
+//   fieldName: string;
+//   placeholder?: string;
+//   validators?: { type: string; value?: any; message?: string }[];
 // }
 
 // interface LoginProps {
@@ -20,71 +23,106 @@
 //   formField,
 //   dispatchEvent,
 // }: LoginProps) => {
-//   // Initialize the state dynamically based on the formField array
-//   const initialState = formField.reduce((acc, field) => {
-//     acc[field.fieldName] = ""; // Initialize all fields with empty strings
-//     return acc;
-//   }, {} as Record<string, string>);
+//   const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);
 
-//   const [formData, setFormData] = useState<Record<string, string>>(initialState);
-//   const [error, setError] = useState<string>("");
+//   const {
+//     register,
+//     handleSubmit,
+//     formState: { errors, isValid, isSubmitting },
+//     reset,
+//   } = useForm({
+//     mode: "onChange",
+//     reValidateMode: "onChange",
+//   });
 
-//   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setFormData((prevData) => ({
-//       ...prevData,
-//       [name]: value, // Update the relevant field dynamically
-//     }));
-//   };
-
-//   const handleSubmit = (e: FormEvent) => {
-//     e.preventDefault();
-
-//     // Check for empty required fields
-//     const emptyFields = formField.some((field) => !formData[field.fieldName]);
-//     if (emptyFields) {
-//       setError("All fields are required!");
-//       return;
+//   const onSubmit = (values: Record<string, any>) => {
+//     try {
+//       const event = new CustomEvent("login-submit", {
+//         detail: values,
+//         bubbles: true,
+//         composed: true,
+//       });
+//       dispatchEvent(event);
+//       setTooltipMessage("Form submitted successfully!");
+//       reset();
+//     } catch (error) {
+//       setTooltipMessage("Submission failed. Please try again.");
 //     }
-//     setError("");
 
-//     // Dispatch custom event with form data
-//     const event = new CustomEvent("login-submit", {
-//       detail: formData,
-//       bubbles: true,
-//       composed: true,
-//     });
-//     dispatchEvent(event);
+//     setTimeout(() => setTooltipMessage(null), 3000);
 //   };
-// console.log('form data=> ',formField)
+
 //   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-//       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+//     <div className="flex items-center justify-center min-h-screen">
+//       <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl space-y-6 relative bg-white border border-gray-300 shadow-lg p-8 rounded-lg">
 //         <h2 className="text-2xl font-bold text-center text-gray-700">Login</h2>
-//         {error && (
-//           <div className="p-4 text-sm text-red-700 bg-red-100 rounded-md">
-//             {error}
+
+//         {tooltipMessage && (
+//           <div className="absolute top-0 right-0 p-2 mt-2 mr-2 text-sm font-semibold text-white bg-green-500 rounded-md shadow-md">
+//             {tooltipMessage}
 //           </div>
 //         )}
-//         <form className="space-y-4" onSubmit={handleSubmit}>
+
+//         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
 //           {formField.map((item, index) => (
-//             <div key={`${item.fieldLabel}-${index}`}>
-//               <label className="block text-sm font-medium text-gray-600">
-//                 {item.fieldLabel}
-//               </label>
+//             <div key={`${item.fieldLabel}-${index}`} className="flex flex-col">
+//               {item.fieldLabel && (
+//                 <label className="block text-sm font-medium text-gray-600 mb-1 text-left">
+//                   {item.fieldLabel}
+//                 </label>
+//               )}
 //               <input
 //                 type={item.fieldType}
-//                 name={item.fieldName}
-//                 className="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-//                 placeholder={item.placeholder || `Enter your ${item.fieldLabel.toLowerCase()}`}
-//                 value={formData[item.fieldName]}
-//                 onChange={handleChange}
+//                 placeholder={item.placeholder || `Enter your ${item.fieldLabel?.toLowerCase()}`}
+//                 {...register(item.fieldName, {
+//                   required: item.validators?.find((v) => v.type === "required")?.message ?? "This field is required",
+//                   minLength: {
+//                     value: item.validators?.find((v) => v.type === "minLength")?.value || 0,
+//                     message: item.validators?.find((v) => v.type === "minLength")?.message ?? "Minimum length not met",
+//                   },
+//                   maxLength: {
+//                     value: item.validators?.find((v) => v.type === "maxLength")?.value || 100,
+//                     message: item.validators?.find((v) => v.type === "maxLength")?.message ?? "Maximum length exceeded",
+//                   },
+//                   pattern: item.validators?.find((v) => v.type === "regex")?.value
+//                     ? {
+//                       value: new RegExp(item.validators?.find((v) => v.type === "regex")?.value as string),
+//                       message: item.validators?.find((v) => v.type === "regex")?.message ?? "Invalid format",
+//                     }
+//                     : undefined,
+//                   validate: (value) => {
+//                     if (
+//                       item.fieldType === "email" &&
+//                       item.validators?.some((v) => v.type === "email")
+//                     ) {
+//                       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//                       return emailRegex.test(value) || "Invalid email format";
+//                     }
+//                     return true;
+//                   },
+//                 })}
+//                 className={`w-full px-4 py-2 border rounded-md focus:outline-none transition-all duration-200 ${errors[item.fieldName]
+//                     ? "border-red-500 focus:ring-red-500"
+//                     : "border-gray-300 focus:ring-blue-400"
+//                   }`}
 //               />
+//               {errors[item.fieldName]?.message && (
+//                 <div className="text-xs text-red-600 mt-1">
+//                   {String(errors[item.fieldName]?.message)}
+//                 </div>
+//               )}
 //             </div>
 //           ))}
 //           <button
 //             type="submit"
-//             className={`font-semibold ${buttonSize} text-white ${buttonColor} rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`}
+//             disabled={!isValid || isSubmitting}
+//             className={`w-full py-2 mt-4 font-semibold ${buttonSize} text-white rounded-md transition-all duration-200 ${isValid && !isSubmitting
+//                 ? `${buttonColor} hover:bg-green-600 focus:ring-2 focus:ring-green-400`
+//                 : "bg-gray-400 cursor-not-allowed"
+//               }`}
+//               style={{
+//                 backgroundColor: buttonColor
+//               }}
 //           >
 //             Login
 //           </button>
@@ -96,14 +134,15 @@
 
 // export { LoginForm };
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 export interface FormField {
   fieldLabel: string;
   fieldType: string;
   fieldName: string;
   placeholder?: string;
-  validators?: string[];
+  validators?: { type: string; value?: any; message?: string }[];
 }
 
 interface LoginProps {
@@ -119,163 +158,111 @@ const LoginForm = ({
   formField,
   dispatchEvent,
 }: LoginProps) => {
-  const initialState = formField.reduce((acc, field) => {
-    acc[field.fieldName] = ""; // Initialize with empty strings
-    return acc;
-  }, {} as Record<string, string>);
+  const [tooltipMessage, setTooltipMessage] = useState<string | null>(null);
 
-  if (buttonColor) {
-    console.log();
-  }
-  const [formData, setFormData] =
-    useState<Record<string, string>>(initialState);
-  const [errors, setErrors] = useState<Record<string, string>>(initialState);
-  const isFormInvalid = Object.keys(errors).length > 0;
-  // Helper function to determine if a string is a valid regex pattern
-  const isCustomValidators = (validatorName: string) => {
-    return (
-      validatorName !== "required" &&
-      validatorName !== "email" &&
-      validatorName !== "minLength:6"
-    );
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+    reset,
+  } = useForm({
+    mode: "onChange",
+    reValidateMode: "onChange",
+  });
 
-  // Validate field based on the validators provided
-  const validateField = (
-    name: string,
-    value: string,
-    validators?: string[]
-  ): string => {
-    if (!validators) return "";
-
-    for (const validator of validators) {
-      if (isCustomValidators(validator)) {
-        const regex = new RegExp(validator);
-        console.log(
-          "enter to regex with regex",
-          regex,
-          `\n regex test for value => ${value} result is `,
-          regex.test(value)
-        );
-        if (!regex.test(value)) {
-          console.log("regex error");
-          return `${name} is invalid. from regex`;
-        }
-      } else {
-        switch (validator) {
-          case "required":
-            if (!value.trim()) return `${name} is required. from required`;
-            break;
-          case "email": {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value))
-              return "Invalid email format. from emails";
-            break;
-          }
-          case "minLength:6":
-            if (value.length < 6)
-              return `${name} must be at least 6 characters. from length`;
-            break;
-          default:
-            continue;
-        }
-      }
+  const onSubmit = (values: Record<string, any>) => {
+    try {
+      const event = new CustomEvent("login-submit", {
+        detail: values,
+        bubbles: true,
+        composed: true,
+      });
+      dispatchEvent(event);
+      setTooltipMessage("Form submitted successfully!");
+      reset();
+    } catch (error) {
+      setTooltipMessage("Submission failed. Please try again.");
     }
 
-    return ""; // No errors
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-
-    // Validate the field and update the error state if needed
-    const field = formField.find((f) => f.fieldName === name);
-    const error = validateField(name, value, field?.validators);
-    console.log("Error for => ", name, "is ", error);
-    setErrors((prevErrors) => {
-      const newErrors = { ...prevErrors };
-      if (error) {
-        newErrors[name] = error; // Set the error if validation fails
-      } else {
-        delete newErrors[name]; // Clear the error if the field is valid
-      }
-      return newErrors;
-    });
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-
-    const newErrors: Record<string, string> = {};
-    formField.forEach((field) => {
-      const error = validateField(
-        field.fieldName,
-        formData[field.fieldName],
-        field.validators
-      );
-      console.log("error while submit => ", error);
-      if (error) newErrors[field.fieldName] = error;
-    });
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    // Dispatch the custom event with valid form data
-    const event = new CustomEvent("login-submit", {
-      detail: formData,
-      bubbles: true,
-      composed: true,
-    });
-    dispatchEvent(event);
+    setTimeout(() => setTooltipMessage(null), 3000);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl space-y-6 relative bg-white border border-gray-300 shadow-lg p-8 rounded-lg">
         <h2 className="text-2xl font-bold text-center text-gray-700">Login</h2>
-        <form className="space-y-4" onSubmit={handleSubmit}>
+
+        {tooltipMessage && (
+          <div className="absolute top-0 right-0 p-2 mt-2 mr-2 text-sm font-semibold text-white bg-green-500 rounded-md shadow-md">
+            {tooltipMessage}
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           {formField.map((item, index) => (
-            <div key={`${item.fieldLabel}-${index}`}>
-              <label className="block text-sm font-medium text-gray-600">
-                {item.fieldLabel}
-              </label>
+            <div key={`${item.fieldLabel}-${index}`} className="flex flex-col">
+              {item.fieldLabel && (
+                <label className="block text-sm font-medium text-gray-600 mb-1 text-left">
+                  {item.fieldLabel}
+                </label>
+              )}
               <input
                 min=""
                 type={item.fieldType}
-                name={item.fieldName}
-                className={`w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  errors[item.fieldName]! ? "border-red-500" : ""
-                }`}
-                placeholder={
-                  item.placeholder ||
-                  `Enter your ${item.fieldLabel.toLowerCase()}`
-                }
-                value={formData[item.fieldName]}
-                onChange={handleChange}
+                placeholder={item.placeholder || `Enter your ${item.fieldLabel?.toLowerCase()}`}
+                {...register(item.fieldName, {
+                  required: item.validators?.find((v) => v.type === "required")?.message ?? "This field is required",
+                  minLength: {
+                    value: item.validators?.find((v) => v.type === "minLength")?.value || 0,
+                    message: item.validators?.find((v) => v.type === "minLength")?.message ?? "Minimum length not met",
+                  },
+                  maxLength: {
+                    value: item.validators?.find((v) => v.type === "maxLength")?.value || 100,
+                    message: item.validators?.find((v) => v.type === "maxLength")?.message ?? "Maximum length exceeded",
+                  },
+                  validate: (value) => {
+                    // Email validation if specified
+                    if (item.fieldType === "email" && item.validators?.some((v) => v.type === "email")) {
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                      if (!emailRegex.test(value)) {
+                        return "Invalid email format";
+                      }
+                    }
+
+                    // Multiple regex validation
+                    const regexValidators = item.validators?.filter((v) => v.type === "regex");
+                    for (const regexValidator of regexValidators ?? []) {
+                      const regexPattern = new RegExp(regexValidator.value as string);
+                      if (!regexPattern.test(value)) {
+                        return regexValidator.message;
+                      }
+                    }
+                    return true;
+                  },
+                })}
+                className={`w-full px-4 py-2 border rounded-md focus:outline-none transition-all duration-200 ${errors[item.fieldName]
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-400"
+                  }`}
               />
-              {errors[item.fieldName]! && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors[item.fieldName]}
-                </p>
+              {errors[item.fieldName]?.message && (
+                <div className="text-xs text-red-600 mt-1">
+                  {String(errors[item.fieldName]?.message)}
+                </div>
               )}
             </div>
           ))}
           <button
             type="submit"
-            disabled={isFormInvalid}
+            disabled={!isValid || isSubmitting}
             className={`font-semibold ${buttonSize} text-white  rounded-md 
-                        ${
-                          isFormInvalid
-                            ? "bg-gray-600 cursor-not-allowed"
-                            : `${buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
-                        }`}
+                        ${isValid && !isSubmitting
+                ? "bg-gray-600 cursor-not-allowed"
+                : `${buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
+              }`}
+            style={{
+              backgroundColor: buttonColor,
+            }}
           >
             Login
           </button>
@@ -286,3 +273,8 @@ const LoginForm = ({
 };
 
 export { LoginForm };
+
+
+
+
+
