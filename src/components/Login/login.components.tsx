@@ -256,11 +256,6 @@ const LoginForm = ({
           <button
             type="submit"
             disabled={!isValid || isSubmitting}
-            // className={`w-full py-2 mt-4 font-semibold ${buttonSize} text-white rounded-md transition-all duration-200 ${
-            //   isValid && !isSubmitting
-            //     ? `${buttonColor} hover:bg-green-600 focus:ring-2 focus:ring-green-400`
-            //     : "bg-gray-400 cursor-not-allowed"
-            // }`}
             className={`font-semibold ${buttonSize} text-white  rounded-md 
             ${
               isValid && !isSubmitting
