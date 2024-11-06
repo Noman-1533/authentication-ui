@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Meta, StoryFn } from "@storybook/react";
 import { LoginWebComponent } from "../Login/login.web-component";
 
@@ -7,33 +7,53 @@ export default {
   title: "Components/LoginWebComponent",
   component: LoginWebComponent as unknown,
   argTypes: {
-    buttonColor: { control: "color" },
-    buttonSize: { control: "text" },
-    buttonName: { control: "text" },
-    buttonPosition: { control: "text" },
     formName: { control: "text" },
+    button1Label: { control: "text" },
+    button1Color: { control: "color" },
+    button1Size: { control: "text" },
+    button1Position: { control: "radio", options: ["left", "center", "right"] },
+    button1CheckValidation: { control: "boolean" },
+    button2Label: { control: "text" },
+    button2Color: { control: "color" },
+    button2Size: { control: "text" },
+    button2Position: { control: "radio", options: ["left", "center", "right"] },
+    button2CheckValidation: { control: "boolean" },
     formField: { control: "object" },
   },
 } as Meta;
 
 const Template: StoryFn = (args: any) => {
-  const container = React.useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const element = document.createElement("custom-form");
-    element.setAttribute("button-color", args.buttonColor);
-    element.setAttribute("button-size", args.buttonSize);
-    element.setAttribute("button-name", args.buttonName);
-    element.setAttribute("button-position", args.buttonPosition);
+
+    // Map the args to buttons, creating the buttons array dynamically
+    const updatedButtons = [
+      {
+        buttonLabel: args.button1Label,
+        buttonColor: args.button1Color,
+        buttonSize: args.button1Size,
+        buttonPosition: args.button1Position,
+        checkValidation: args.button1CheckValidation,
+      },
+      {
+        buttonLabel: args.button2Label,
+        buttonColor: args.button2Color,
+        buttonSize: args.button2Size,
+        buttonPosition: args.button2Position,
+        checkValidation: args.button2CheckValidation,
+      },
+    ];
+
     element.setAttribute("form-name", args.formName);
+    element.setAttribute("buttons", JSON.stringify(updatedButtons));
     element.setAttribute("form-field", JSON.stringify(args.formField));
 
     container.current?.appendChild(element);
 
     return () => {
-      if (container.current) {
-        container.current.innerHTML = "";
-      }
+      container.current?.removeChild(element);
     };
   }, [args]);
 
@@ -43,10 +63,17 @@ const Template: StoryFn = (args: any) => {
 export const Default = Template.bind({});
 Default.args = {
   formName: "Login",
-  buttonColor: "bg-blue-500",
-  buttonSize: "px-6 py-3",
-  buttonName: "Login",
-  buttonPosition: "self-center",
+  button1Label: "Login",
+  button1Color: "bg-blue-500",
+  button1Size: "px-6 py-3",
+  button1Position: "center",
+  button1CheckValidation: true,
+  button2Label: "Reset",
+  button2Color: "bg-red-500",
+  button2Size: "px-4 py-2",
+  button2Position: "left",
+  button2CheckValidation: false,
+
   formField: [
     {
       fieldLabel: "Username",
@@ -74,10 +101,17 @@ Default.args = {
 export const CustomButtonStyle = Template.bind({});
 CustomButtonStyle.args = {
   formName: "Login",
-  buttonColor: "bg-green-500",
-  buttonSize: "px-8 py-4",
-  buttonName: "Sign In",
-  buttonPosition: "self-start",
+  button1Label: "Sign In",
+  button1Color: "bg-green-500",
+  button1Size: "px-8 py-4",
+  button1Position: "left",
+  button1CheckValidation: true,
+  button2Label: "Cancel",
+  button2Color: "bg-gray-500",
+  button2Size: "px-4 py-2",
+  button2Position: "right",
+  button2CheckValidation: false,
+
   formField: [
     {
       fieldLabel: "Email",
@@ -105,10 +139,17 @@ CustomButtonStyle.args = {
 export const LargeForm = Template.bind({});
 LargeForm.args = {
   formName: "Sign Up",
-  buttonColor: "bg-purple-500",
-  buttonSize: "px-10 py-4",
-  buttonName: "Register",
-  buttonPosition: "self-end",
+  button1Label: "Register",
+  button1Color: "bg-purple-500",
+  button1Size: "px-10 py-4",
+  button1Position: "right",
+  button1CheckValidation: true,
+  button2Label: "Cancel",
+  button2Color: "bg-gray-500",
+  button2Size: "px-4 py-2",
+  button2Position: "left",
+  button2CheckValidation: false,
+
   formField: [
     {
       fieldLabel: "Username",

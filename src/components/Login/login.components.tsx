@@ -13,22 +13,57 @@ export interface FormField {
   }[];
 }
 
-interface LoginProps {
-  formName: string;
+export interface ButtonModel {
+  buttonLabel: string;
   buttonColor: string;
   buttonSize: string;
-  buttonName: string;
-  buttonPosition: string;
+  buttonPosition: "left" | "center" | "right";
+  checkValidation: boolean;
+}
+interface LoginProps {
+  formName: string;
+  buttons: ButtonModel[];
   formField: FormField[];
   dispatchEvent: (event: CustomEvent) => void;
+}
+function CreateButtons(
+  buttons: ButtonModel[],
+  isValid: boolean,
+  isSubmitting: boolean
+) {
+  const buttonList = buttons.map((item) => {
+    let activeButtonColor = `${item.buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`;
+    if (item.checkValidation && (!isValid || isSubmitting)) {
+      activeButtonColor = "bg-gray-600 cursor-not-allowed";
+    }
+    const buttonPosition =
+      item.buttonPosition === "center"
+        ? "mx-auto "
+        : item.buttonPosition === "right"
+        ? "ml-auto "
+        : "";
+
+    return (
+      <button
+        type="submit"
+        disabled={!isValid || isSubmitting}
+        className={`font-semibold ${item.buttonSize} text-white rounded-md block
+                    ${activeButtonColor} 
+                    ${buttonPosition}`}
+        style={{
+          backgroundColor: item.buttonColor,
+        }}
+      >
+        {item.buttonLabel}
+      </button>
+    );
+  });
+  return buttonList;
 }
 
 const LoginForm = ({
   formName,
-  buttonColor,
-  buttonSize,
-  buttonName,
-  buttonPosition,
+  buttons,
   formField,
   dispatchEvent,
 }: LoginProps) => {
@@ -150,20 +185,30 @@ const LoginForm = ({
               )}
             </div>
           ))}
-          <button
+          {/* <button
             type="submit"
             disabled={!isValid || isSubmitting}
-            className={`font-semibold ${buttonSize} text-white rounded-md ${buttonPosition} ${
-              isValid && !isSubmitting
-                ? `${buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
-                : "bg-gray-600 cursor-not-allowed"
-            }`}
+            className={`font-semibold ${buttonSize} text-white rounded-md 
+    ${
+      isValid && !isSubmitting
+        ? `${buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`
+        : "bg-gray-600 cursor-not-allowed"
+    } 
+    ${
+      buttonPosition === "center"
+        ? "mx-auto block"
+        : buttonPosition === "right"
+        ? "ml-auto block"
+        : "mr-auto"
+    }`}
             style={{
               backgroundColor: buttonColor,
             }}
           >
             {buttonName}
-          </button>
+          </button> */}
+
+          {CreateButtons(buttons, isValid, isSubmitting)}
         </form>
       </div>
     </div>
