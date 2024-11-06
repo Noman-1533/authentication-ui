@@ -6,7 +6,6 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
-  "homepage": "./",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
