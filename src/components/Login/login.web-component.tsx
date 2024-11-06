@@ -12,6 +12,7 @@ class LoginWebComponent extends HTMLElement {
   private buttonPosition: string = "left";
   private checkValidation: boolean = false;
   private buttons: ButtonModel[] = [];
+  private rememberMe: boolean = false;
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
@@ -19,11 +20,12 @@ class LoginWebComponent extends HTMLElement {
     style.textContent = `
       @import 'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css';
     `;
-    this.shadowRoot?.appendChild(style);
+    this.shadow.appendChild(style);
     this.root = null;
   }
+
   static get observedAttributes() {
-    return ["form-field", "form-name", "buttons"];
+    return ["form-field", "form-name", "buttons","remember-me",];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -45,6 +47,9 @@ class LoginWebComponent extends HTMLElement {
           return item;
         });
       }
+      if(name==="remember-me"){
+        this.rememberMe = newValue === "true";
+      }
     }
     console.log(
       "name=> ",
@@ -56,35 +61,33 @@ class LoginWebComponent extends HTMLElement {
     );
     this.render();
   }
+
   connectedCallback() {
     this.render();
   }
+
   disconnectedCallback() {
     if (this.root) {
       this.root.unmount();
     }
   }
+
   private render() {
     if (!this.root) {
       this.root = ReactDOM.createRoot(this.shadow!);
     }
-    console.log(
-      "button color=> ",
-      this.buttonColor,
-      "\n button size",
-      this.buttonSize,
-      "\n form field",
-      this.formField
-    );
+
     this.root.render(
       <LoginForm
         formName={this.formName}
         buttons={this.buttons}
+        rememberMe={this.rememberMe}
         dispatchEvent={(event: CustomEvent) => this.dispatchEvent(event)}
         formField={this.formField}
       />
     );
   }
 }
+
 customElements.define("custom-form", LoginWebComponent);
 export { LoginWebComponent };

@@ -18,7 +18,9 @@ export default {
     button2Size: { control: "text" },
     button2Position: { control: "radio", options: ["left", "center", "right"] },
     button2CheckValidation: { control: "boolean" },
+    rememberMe: { control: "boolean" },
     formField: { control: "object" },
+    buttons: { control: "object" },
   },
 } as Meta;
 
@@ -29,7 +31,7 @@ const Template: StoryFn = (args: any) => {
     const element = document.createElement("custom-form");
 
     // Map the args to buttons, creating the buttons array dynamically
-    const updatedButtons = [
+    args.buttons = [
       {
         buttonLabel: args.button1Label,
         buttonColor: args.button1Color,
@@ -47,10 +49,9 @@ const Template: StoryFn = (args: any) => {
     ];
 
     element.setAttribute("form-name", args.formName);
-    element.setAttribute("buttons", JSON.stringify(updatedButtons));
+    element.setAttribute("buttons", JSON.stringify(args.buttons));
     element.setAttribute("form-field", JSON.stringify(args.formField));
-
-    container.current?.appendChild(element);
+    element.setAttribute("remember-me", args.rememberMe ? "true" : "false");
 
     return () => {
       container.current?.removeChild(element);
@@ -73,7 +74,7 @@ Default.args = {
   button2Size: "px-4 py-2",
   button2Position: "left",
   button2CheckValidation: false,
-
+  rememberMe: true,
   formField: [
     {
       fieldLabel: "Username",
@@ -96,6 +97,22 @@ Default.args = {
       ],
     },
   ],
+  buttons: [
+    {
+      buttonLabel: "Sign In",
+      buttonColor: "bg-green-500",
+      buttonSize: "px-8 py-4",
+      buttonPosition: "left",
+      checkValidation: true,
+    },
+    {
+      buttonLabel: "Cancel",
+      buttonColor: "bg-gray-500",
+      buttonSize: "px-4 py-2",
+      buttonPosition: "right",
+      checkValidation: false,
+    },
+  ],
 };
 
 export const CustomButtonStyle = Template.bind({});
@@ -111,7 +128,7 @@ CustomButtonStyle.args = {
   button2Size: "px-4 py-2",
   button2Position: "right",
   button2CheckValidation: false,
-
+  rememberMe: true,
   formField: [
     {
       fieldLabel: "Email",
@@ -134,6 +151,22 @@ CustomButtonStyle.args = {
       ],
     },
   ],
+  buttons: [
+    {
+      buttonLabel: "Sign In",
+      buttonColor: "bg-green-500",
+      buttonSize: "px-8 py-4",
+      buttonPosition: "left",
+      checkValidation: true,
+    },
+    {
+      buttonLabel: "Cancel",
+      buttonColor: "bg-gray-500",
+      buttonSize: "px-4 py-2",
+      buttonPosition: "right",
+      checkValidation: false,
+    },
+  ],
 };
 
 export const LargeForm = Template.bind({});
@@ -149,7 +182,7 @@ LargeForm.args = {
   button2Size: "px-4 py-2",
   button2Position: "left",
   button2CheckValidation: false,
-
+  rememberMe: false,
   formField: [
     {
       fieldLabel: "Username",
@@ -190,6 +223,22 @@ LargeForm.args = {
         { type: "required", message: "Confirmation is required" },
         { type: "minLength", value: 8, message: "Minimum 8 characters" },
       ],
+    },
+  ],
+  buttons: [
+    {
+      buttonLabel: "Sign In",
+      buttonColor: "bg-green-500",
+      buttonSize: "px-8 py-4",
+      buttonPosition: "left",
+      checkValidation: true,
+    },
+    {
+      buttonLabel: "Cancel",
+      buttonColor: "bg-gray-500",
+      buttonSize: "px-4 py-2",
+      buttonPosition: "right",
+      checkValidation: false,
     },
   ],
 };

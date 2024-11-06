@@ -6,6 +6,7 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
+  "homepage": "./",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -15,12 +16,14 @@
     "build-storybook": "storybook build -o ./docs"
   },
   "dependencies": {
+    "@storybook/addon-links": "^8.4.2",
     "formik": "^2.4.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.1",
     "vite-plugin-dts": "^4.2.4",
     "vite-plugin-lib-inject-css": "^2.1.1",
+    "vite-tsconfig-paths": "^5.0.1",
     "yup": "^1.4.0"
   },
   "devDependencies": {
