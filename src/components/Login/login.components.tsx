@@ -111,7 +111,6 @@ const LoginForm = ({
                         ?.message ?? "Maximum length exceeded",
                   },
                   validate: (value) => {
-                    // Email validation if specified
                     if (
                       item.fieldType === "email" &&
                       item.validators?.some((v) => v.type === "email")
@@ -122,7 +121,6 @@ const LoginForm = ({
                       }
                     }
 
-                    // Multiple regex validation
                     const regexValidators = item.validators?.filter(
                       (v) => v.type === "regex"
                     );
