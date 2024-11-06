@@ -53,6 +53,8 @@ const Template: StoryFn = (args: any) => {
     element.setAttribute("form-field", JSON.stringify(args.formField));
     element.setAttribute("remember-me", args.rememberMe ? "true" : "false");
 
+    container.current?.appendChild(element);
+
     return () => {
       container.current?.removeChild(element);
     };
