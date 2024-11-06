@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Meta, StoryFn } from "@storybook/react";
 import { LoginWebComponent } from "../Login/login.web-component";
 
