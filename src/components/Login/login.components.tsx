@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import {  useState } from "react";
+import { useState } from "react";
 
 export interface FormField {
   fieldLabel: string;
@@ -29,6 +29,8 @@ interface LoginProps {
   dispatchEvent: (event: CustomEvent) => void;
   rememberMe?: boolean;
 }
+
+type FormValues = Record<string, string | number | boolean | null>;
 
 function CreateButtons(
   buttons: ButtonModel[],
@@ -75,25 +77,23 @@ const LoginForm = ({
 }: LoginProps) => {
   const [isRemembered, setIsRemembered] = useState(false);
 
-  const defaultValues = formField.reduce((acc, field) => {
+  const defaultValues: FormValues = formField.reduce((acc, field) => {
     acc[field.fieldName] = field.defaultValue || "";
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as FormValues);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid, isDirty },
     reset,
-  } = useForm({
+  } = useForm<FormValues>({
     defaultValues,
     mode: "onChange",
     reValidateMode: "onChange",
   });
 
-  const onSubmit = (
-    values: Record<string, string | number | boolean | null>
-  ) => {
+  const onSubmit = (values: FormValues) => {
     try {
       const event = new CustomEvent("form-submit", {
         detail: { ...values, rememberMe: isRemembered },
@@ -167,7 +167,7 @@ const LoginForm = ({
                         item.validators?.some((v) => v.type === "email")
                       ) {
                         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailRegex.test(value)) {
+                        if (!emailRegex.test(value as string)) {
                           return "Invalid email format";
                         }
                       }
@@ -179,7 +179,7 @@ const LoginForm = ({
                         const regexPattern = new RegExp(
                           regexValidator.value as string
                         );
-                        if (!regexPattern.test(value)) {
+                        if (!regexPattern.test(value as string)) {
                           return regexValidator.message;
                         }
                       }
@@ -195,7 +195,9 @@ const LoginForm = ({
                       ? "border-red-500 focus:ring-red-500"
                       : "border-gray-300 focus:ring-blue-400"
                   }`}
-                  defaultValue={item.defaultValue as any}
+                  defaultValue={
+                    item.defaultValue as string | number | undefined
+                  }
                 />
 
                 {item.fieldType === "checkbox" && item.fieldLabel && (
