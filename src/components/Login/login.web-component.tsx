@@ -1,4 +1,4 @@
-import  ReactDOM  ,{ Root } from "react-dom/client";
+import ReactDOM, { Root } from "react-dom/client";
 import { ButtonModel, FormField, LoginForm } from "./login.components";
 
 class LoginWebComponent extends HTMLElement {
@@ -13,6 +13,8 @@ class LoginWebComponent extends HTMLElement {
   private checkValidation: boolean = false;
   private buttons: ButtonModel[] = [];
   private rememberMe: boolean = false;
+  private isReset: boolean = false;
+
   constructor() {
     super();
     this.shadow = this.attachShadow({ mode: "open" });
@@ -25,11 +27,11 @@ class LoginWebComponent extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["form-field", "form-name", "buttons","remember-me",];
+    return ["form-field", "form-name", "buttons", "remember-me", "is-reset"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (oldValue != newValue) {
+    if (oldValue !== newValue) {
       if (name === "form-field") {
         this.formField = JSON.parse(newValue);
       }
@@ -47,18 +49,13 @@ class LoginWebComponent extends HTMLElement {
           return item;
         });
       }
-      if(name==="remember-me"){
+      if (name === "remember-me") {
         this.rememberMe = newValue === "true";
       }
+      if (name === "is-reset") {
+        this.isReset = newValue === "true";
+      }
     }
-    console.log(
-      "name=> ",
-      name,
-      "oldValue=> ",
-      oldValue,
-      "new Value=> ",
-      newValue
-    );
     this.render();
   }
 
@@ -84,6 +81,7 @@ class LoginWebComponent extends HTMLElement {
         rememberMe={this.rememberMe}
         dispatchEvent={(event: CustomEvent) => this.dispatchEvent(event)}
         formField={this.formField}
+        isReset={this.isReset}
       />
     );
   }
