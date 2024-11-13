@@ -21,6 +21,7 @@ export default {
     rememberMe: { control: "boolean" },
     formField: { control: "object" },
     buttons: { control: "object" },
+    isReset: { control: "boolean" },
   },
 } as Meta;
 
@@ -52,6 +53,7 @@ const Template: StoryFn = (args: any) => {
     element.setAttribute("buttons", JSON.stringify(args.buttons));
     element.setAttribute("form-field", JSON.stringify(args.formField));
     element.setAttribute("remember-me", args.rememberMe ? "true" : "false");
+    element.setAttribute("is-reset", args.isReset ? "true" : "false");
 
     container.current?.appendChild(element);
 
@@ -77,6 +79,7 @@ Default.args = {
   button2Position: "left",
   button2CheckValidation: false,
   rememberMe: true,
+  isReset: true,
   formField: [
     {
       fieldLabel: "Username",
@@ -131,6 +134,7 @@ CustomButtonStyle.args = {
   button2Position: "right",
   button2CheckValidation: false,
   rememberMe: true,
+  isReset: true,
   formField: [
     {
       fieldLabel: "Email",
@@ -185,6 +189,7 @@ SignUpForm.args = {
   button2Position: "left",
   button2CheckValidation: false,
   rememberMe: false,
+  isReset: false,
   formField: [
     {
       fieldLabel: "Username",
@@ -258,6 +263,7 @@ SignUpFormWithTerms.args = {
   button2Position: "left",
   button2CheckValidation: false,
   rememberMe: false,
+  isReset: false,
   formField: [
     {
       fieldLabel: "Username",
@@ -323,3 +329,4 @@ SignUpFormWithTerms.args = {
     },
   ],
 };
+

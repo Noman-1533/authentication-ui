@@ -28,6 +28,7 @@ interface LoginProps {
   formField: FormField[];
   dispatchEvent: (event: CustomEvent) => void;
   rememberMe?: boolean;
+  isReset?: boolean;
 }
 
 type FormValues = Record<string, string | number | boolean | null>;
@@ -74,6 +75,7 @@ const LoginForm = ({
   formField,
   dispatchEvent,
   rememberMe = false,
+  isReset = false,
 }: LoginProps) => {
   const [isRemembered, setIsRemembered] = useState(false);
 
@@ -90,7 +92,6 @@ const LoginForm = ({
   } = useForm<FormValues>({
     defaultValues,
     mode: "onChange",
-    reValidateMode: "onChange",
   });
 
   const onSubmit = (values: FormValues) => {
@@ -101,8 +102,11 @@ const LoginForm = ({
         composed: true,
       });
       dispatchEvent(event);
-      reset(defaultValues);
-      setIsRemembered(false);
+
+      if (isReset) {
+        reset(defaultValues);
+        setIsRemembered(false);
+      }
     } catch (e) {
       console.log("error", e);
     }
