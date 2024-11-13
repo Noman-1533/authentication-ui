@@ -12,6 +12,10 @@ export interface FormField {
     value?: string | number | RegExp;
     message?: string;
   }[];
+  dependsOn?: {
+    fieldName: string;
+    message: string;
+  };
 }
 
 export interface ButtonModel {
@@ -89,27 +93,51 @@ const LoginForm = ({
     handleSubmit,
     formState: { errors, isValid, isDirty },
     reset,
+    watch,
   } = useForm<FormValues>({
     defaultValues,
     mode: "onChange",
   });
 
   const onSubmit = (values: FormValues) => {
+    console.log("Original form values: ", values);
+  
     try {
+      const filteredValues = Object.keys(values).reduce((acc, fieldName) => {
+        const field = formField.find((item) => item.fieldName === fieldName);
+        if (field && field.dependsOn) {
+          return acc;
+        }
+        acc[fieldName] = values[fieldName];
+        return acc;
+      }, {} as FormValues);
+  
+      console.log("Filtered form values (excluding dependsOn fields): ", filteredValues);
       const event = new CustomEvent("form-submit", {
-        detail: { ...values, rememberMe: isRemembered },
+        detail: { ...filteredValues, rememberMe: isRemembered },
         bubbles: true,
         composed: true,
       });
       dispatchEvent(event);
-
+  
       if (isReset) {
         reset(defaultValues);
         setIsRemembered(false);
       }
     } catch (e) {
-      console.log("error", e);
+      console.log("Error", e);
     }
+  };
+  
+  const validateDependentField = (fieldName: string,  value: string | number | boolean | null) => {
+    const dependentField = formField.find((field) => field.fieldName === fieldName);
+    if (dependentField?.dependsOn) {
+      const dependentValue = watch(dependentField.dependsOn.fieldName);
+      if (dependentValue !== value) {
+        return dependentField.dependsOn.message;
+      }
+    }
+    return true;
   };
 
   return (
@@ -187,7 +215,8 @@ const LoginForm = ({
                           return regexValidator.message;
                         }
                       }
-                      return true;
+
+                      return validateDependentField(item.fieldName, value);
                     },
                   })}
                   className={`${
