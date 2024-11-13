@@ -21,6 +21,7 @@ export default {
     rememberMe: { control: "boolean" },
     formField: { control: "object" },
     buttons: { control: "object" },
+    isReset: { control: "boolean" },
   },
 } as Meta;
 
@@ -52,6 +53,7 @@ const Template: StoryFn = (args: any) => {
     element.setAttribute("buttons", JSON.stringify(args.buttons));
     element.setAttribute("form-field", JSON.stringify(args.formField));
     element.setAttribute("remember-me", args.rememberMe ? "true" : "false");
+    element.setAttribute("is-reset", args.isReset ? "true" : "false");
 
     container.current?.appendChild(element);
 
@@ -77,6 +79,7 @@ Default.args = {
   button2Position: "left",
   button2CheckValidation: false,
   rememberMe: true,
+  isReset: true,
   formField: [
     {
       fieldLabel: "Username",
@@ -131,6 +134,7 @@ CustomButtonStyle.args = {
   button2Position: "right",
   button2CheckValidation: false,
   rememberMe: true,
+  isReset: true,
   formField: [
     {
       fieldLabel: "Email",
@@ -185,6 +189,7 @@ SignUpForm.args = {
   button2Position: "left",
   button2CheckValidation: false,
   rememberMe: false,
+  isReset: false,
   formField: [
     {
       fieldLabel: "Username",
@@ -258,6 +263,7 @@ SignUpFormWithTerms.args = {
   button2Position: "left",
   button2CheckValidation: false,
   rememberMe: false,
+  isReset: false,
   formField: [
     {
       fieldLabel: "Username",
@@ -323,3 +329,86 @@ SignUpFormWithTerms.args = {
     },
   ],
 };
+
+
+export const SignUpFormWithDependsOn = Template.bind({});
+SignUpFormWithDependsOn.args = {
+  formName: "Sign Up",
+  button1Label: "Register",
+  button1Color: "bg-purple-500",
+  button1Size: "px-10 py-4",
+  button1Position: "right",
+  button1CheckValidation: true,
+  button2Label: "Cancel",
+  button2Color: "bg-gray-500",
+  button2Size: "px-4 py-2",
+  button2Position: "left",
+  button2CheckValidation: false,
+  rememberMe: false,
+  isReset: false,
+  formField: [
+    {
+      fieldLabel: "Username",
+      fieldType: "text",
+      fieldName: "username",
+      placeholder: "Enter your username",
+      validators: [
+        { type: "required", message: "Username is required" },
+        { type: "minLength", value: 3, message: "Minimum 3 characters" },
+      ],
+    },
+    {
+      fieldLabel: "Email",
+      fieldType: "email",
+      fieldName: "email",
+      placeholder: "Enter your email",
+      validators: [
+        { type: "required", message: "Email is required" },
+        { type: "email", message: "Invalid email format" },
+      ],
+    },
+    {
+      fieldLabel: "Password",
+      fieldType: "password",
+      fieldName: "password",
+      placeholder: "Enter your password",
+      validators: [
+        { type: "required", message: "Password is required" },
+        { type: "minLength", value: 8, message: "Minimum 8 characters" },
+      ],
+    },
+    {
+      fieldLabel: "Confirm Password",
+      fieldType: "password",
+      fieldName: "confirmPassword",
+      placeholder: "Confirm your password",
+      dependsOn:{
+        fieldName: "password",
+        message: "Passwords do not match",
+      }
+    },
+    {
+      fieldLabel: "Accept our terms and service",
+      fieldType: "checkbox",
+      fieldName: "terms",
+      validators: [{ type: "required", message: "Password is required" }],
+    },
+  ],
+  buttons: [
+    {
+      buttonLabel: "Sign In",
+      buttonColor: "bg-green-500",
+      buttonSize: "px-8 py-4",
+      buttonPosition: "left",
+      checkValidation: true,
+    },
+    {
+      buttonLabel: "Cancel",
+      buttonColor: "bg-gray-500",
+      buttonSize: "px-4 py-2",
+      buttonPosition: "right",
+      checkValidation: false,
+    },
+  ],
+};
+

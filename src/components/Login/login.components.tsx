@@ -13,6 +13,10 @@ export interface FormField {
     value?: string | number | RegExp;
     message?: string;
   }[];
+  dependsOn?: {
+    fieldName: string;
+    message: string;
+  };
 }
 
 export interface ButtonModel {
@@ -29,6 +33,7 @@ interface LoginProps {
   formField: FormField[];
   dispatchEvent: (event: CustomEvent) => void;
   rememberMe?: boolean;
+  isReset?: boolean;
 }
 
 type FormValues = Record<string, string | number | boolean | null>;
@@ -75,6 +80,7 @@ const LoginForm = ({
   formField,
   dispatchEvent,
   rememberMe = false,
+  isReset = false,
 }: LoginProps) => {
   const [isRemembered, setIsRemembered] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -88,6 +94,7 @@ const LoginForm = ({
     handleSubmit,
     formState: { errors, isValid, isDirty },
     reset,
+    watch,
   } = useForm<FormValues>({
     defaultValues,
     mode: "all",
@@ -100,21 +107,48 @@ const LoginForm = ({
     return <div className="text-xs text-red-600 mt-1">{message}</div>;
   };
   const onSubmit = (values: FormValues) => {
+    console.log("Original form values: ", values);
+  
     try {
+      const filteredValues = Object.keys(values).reduce((acc, fieldName) => {
+        const field = formField.find((item) => item.fieldName === fieldName);
+        if (field && field.dependsOn) {
+          return acc;
+        }
+        acc[fieldName] = values[fieldName];
+        return acc;
+      }, {} as FormValues);
+  
+      console.log("Filtered form values (excluding dependsOn fields): ", filteredValues);
       const event = new CustomEvent("form-submit", {
-        detail: { ...values, rememberMe: isRemembered },
+        detail: { ...filteredValues, rememberMe: isRemembered },
         bubbles: true,
         composed: true,
       });
       console.log("event from library =>", event);
       dispatchEvent(event);
-      reset(defaultValues);
-      setIsRemembered(false);
+  
+      if (isReset) {
+        reset(defaultValues);
+        setIsRemembered(false);
+      }
       setIsSubmitted(true);
     } catch (e) {
-      console.log("error", e);
+      console.log("Error", e);
     }
   };
+  
+  const validateDependentField = (fieldName: string,  value: string | number | boolean | null) => {
+    const dependentField = formField.find((field) => field.fieldName === fieldName);
+    if (dependentField?.dependsOn) {
+      const dependentValue = watch(dependentField.dependsOn.fieldName);
+      if (dependentValue !== value) {
+        return dependentField.dependsOn.message;
+      }
+    }
+    return true;
+  };
+ 
   useEffect(() => {
     if (!isSubmitted) {
       const updatedForm = formField.map((item) => ({
@@ -201,7 +235,8 @@ const LoginForm = ({
                           return regexValidator.message;
                         }
                       }
-                      return true;
+
+                      return validateDependentField(item.fieldName, value);
                     },
                   })}
                   className={`${
