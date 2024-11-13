@@ -1,11 +1,12 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface FormField {
   fieldLabel: string;
   fieldType: string;
   fieldName: string;
   placeholder?: string;
+  serverError?: string;
   defaultValue?: string | number | boolean;
   validators?: {
     type: string;
@@ -37,11 +38,11 @@ interface LoginProps {
 
 type FormValues = Record<string, string | number | boolean | null>;
 
-function CreateButtons(
+const CreateButtons = (
   buttons: ButtonModel[],
   isValid: boolean,
   isDirty: boolean
-) {
+) => {
   const buttonList = buttons.map((item, index) => {
     let activeButtonColor = `${item.buttonColor} hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400`;
     if (item.checkValidation && (!isValid || !isDirty)) {
@@ -71,7 +72,7 @@ function CreateButtons(
     );
   });
   return buttonList;
-}
+};
 
 const LoginForm = ({
   formName,
@@ -82,7 +83,7 @@ const LoginForm = ({
   isReset = false,
 }: LoginProps) => {
   const [isRemembered, setIsRemembered] = useState(false);
-
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const defaultValues: FormValues = formField.reduce((acc, field) => {
     acc[field.fieldName] = field.defaultValue || "";
     return acc;
@@ -96,9 +97,15 @@ const LoginForm = ({
     watch,
   } = useForm<FormValues>({
     defaultValues,
-    mode: "onChange",
+    mode: "all",
   });
 
+  console.log("current form data from library => ", formField);
+
+  const CreateErrors = (message: string) => {
+    console.log(message);
+    return <div className="text-xs text-red-600 mt-1">{message}</div>;
+  };
   const onSubmit = (values: FormValues) => {
     console.log("Original form values: ", values);
   
@@ -118,12 +125,14 @@ const LoginForm = ({
         bubbles: true,
         composed: true,
       });
+      console.log("event from library =>", event);
       dispatchEvent(event);
   
       if (isReset) {
         reset(defaultValues);
         setIsRemembered(false);
       }
+      setIsSubmitted(true);
     } catch (e) {
       console.log("Error", e);
     }
@@ -139,6 +148,17 @@ const LoginForm = ({
     }
     return true;
   };
+ 
+  useEffect(() => {
+    if (!isSubmitted) {
+      const updatedForm = formField.map((item) => ({
+        ...item,
+        serverError: "",
+      }));
+      formField = updatedForm;
+      console.log("form field from effect => ", formField);
+    }
+  }, [isSubmitted]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -231,6 +251,9 @@ const LoginForm = ({
                   defaultValue={
                     item.defaultValue as string | number | undefined
                   }
+                  onInput={() => {
+                    setIsSubmitted(false);
+                  }}
                 />
 
                 {item.fieldType === "checkbox" && item.fieldLabel && (
@@ -239,11 +262,11 @@ const LoginForm = ({
                   </label>
                 )}
               </div>
-              {errors[item.fieldName]?.message && (
-                <div className="text-xs text-red-600 mt-1">
-                  {String(errors[item.fieldName]?.message)}
-                </div>
-              )}
+              {isSubmitted &&
+                item.serverError &&
+                CreateErrors(item.serverError)}
+              {errors[item.fieldName]?.message &&
+                CreateErrors(String(errors[item.fieldName]?.message))}
             </div>
           ))}
 
